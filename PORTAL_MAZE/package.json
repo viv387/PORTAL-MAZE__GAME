@@ -1,0 +1,32 @@
+{
+  "name": "portal-maze-game",
+  "version": "1.0.0",
+  "description": "A ghost-themed puzzle maze game with portals and pathfinding",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8000 -o",
+    "dev": "npx http-server -p 8000 -o",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod --dir ."
+  },
+  "keywords": [
+    "game",
+    "maze",
+    "puzzle",
+    "portal",
+    "ghost",
+    "pathfinding",
+    "canvas",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/portal-maze.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/portal-maze/issues"
+  },
+  "homepage": "https://YOUR_USERNAME.github.io/portal-maze/"
+}

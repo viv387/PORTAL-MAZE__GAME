@@ -402,25 +402,17 @@ btnValidate.onclick = () => {
     box.classList.add(isValid ? "success" : "error");
 
     // Show/hide path button based on validity
-    console.log("btnShowPath:", btnShowPath);
-    console.log("isValid:", isValid);
-    
     if (btnShowPath) {
         if (isValid) {
-            console.log("Showing path button");
             btnShowPath.style.display = "inline-block";
             // Store the best path
             currentPath = K > 0 && withBreak !== null
                 ? getFullPath(editorMap.map(r => r.slice()), startPos, goalPos, K)
                 : getFullPath(editorMap.map(r => r.slice()), startPos, goalPos, 0);
-            console.log("currentPath:", currentPath);
         } else {
-            console.log("Hiding path button");
             btnShowPath.style.display = "none";
             currentPath = null;
         }
-    } else {
-        console.log("btnShowPath element not found!");
     }
 };
 
@@ -452,10 +444,6 @@ btnReturnGame.onclick = () => {
 // =======================================================
 //                    STARTUP
 // =======================================================
-
-console.log("Editor initialized");
-console.log("btnValidate:", btnValidate);
-console.log("btnShowPath:", btnShowPath);
 
 resizeEditorCanvas();
 drawEditor();
