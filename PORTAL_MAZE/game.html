@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ESCAPE THE GHASTLY</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+<!-- USERNAME OVERLAY -->
+<div id="usernameOverlay">
+    <div class="username-card">
+        <h2>ENTER USERNAME</h2>
+        <input id="usernameInput" placeholder="Unique username" maxlength="16">
+        <p id="usernameError"></p>
+        <button id="confirmUsernameBtn">CONFIRM</button>
+    </div>
+</div>
+
+<!-- START OVERLAY -->
+<div id="startOverlay" style="display:none;">
+    <div>
+        <p>Press start when ready</p>
+        <button id="startGameBtn">▶ Start Game</button>
+    </div>
+</div>
+
+<!-- GAME -->
+<div id="gameLayout">
+    <div id="leftPanel">
+        <button id="normalMode">Normal</button>
+        <button id="wallMode">Wall Break</button>
+
+        <div id="difficultyOptions">
+            <button value="easy">Easy</button>
+            <button value="medium">Medium</button>
+            <button value="hard">Hard</button>
+        </div>
+
+        <button id="pauseResumeBtn">⏸ Pause</button>
+        <button id="resetGame">Reset</button>
+        <button id="openEditor">Map Editor</button>
+    </div>
+
+    <div id="rightPanel">
+        <div id="statusBar">
+            <div id="modeStatus"></div>
+            <div id="breaksStatus"></div>
+            <div id="stepCounter"></div>
+            <div id="timeCounter"></div>
+        </div>
+
+        <canvas id="mazeCanvas"></canvas>
+
+        <div id="leaderboard">
+            <ul id="leaderboardList"></ul>
+            <div id="bestScore"></div>
+        </div>
+    </div>
+</div>
+
+<div id="scoreBox" style="display:none;">
+    <div id="scoreText"></div>
+</div>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>

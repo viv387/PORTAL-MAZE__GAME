@@ -1,0 +1,226 @@
+/* =======================================================
+   GLOBAL THEME
+======================================================= */
+:root {
+    --dark-primary: #1B3C53;
+    --dark-secondary: #234C6A;
+    --accent-blue: #456882;
+    --light-accent: #D2C1B6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--light-accent);
+    background: linear-gradient(
+        180deg,
+        var(--dark-primary),
+        var(--dark-secondary),
+        var(--accent-blue)
+    );
+}
+
+/* =======================================================
+   LANDING / USERNAME PHASE
+======================================================= */
+.landing-body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(
+        circle at top,
+        var(--dark-secondary),
+        var(--dark-primary) 65%
+    );
+}
+
+.landing-container {
+    background: rgba(35, 76, 106, 0.55);
+    backdrop-filter: blur(14px);
+    border-radius: 22px;
+    padding: 48px 64px;
+    text-align: center;
+    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+    animation: fadeUp 1s ease forwards;
+}
+
+/* =======================================================
+   USERNAME OVERLAY
+======================================================= */
+#usernameOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.username-card {
+    background: rgba(35, 76, 106, 0.65);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 36px 42px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    animation: fadeUp 0.6s ease;
+}
+
+#usernameInput {
+    width: 220px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #111;
+    color: var(--light-accent);
+    text-align: center;
+}
+
+/* =======================================================
+   WELCOME BANNER
+======================================================= */
+#welcomeBanner {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.welcome-card {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 30px 44px;
+    border-radius: 18px;
+    text-align: center;
+    animation: fadeUp 0.5s ease;
+}
+
+.welcome-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.8rem;
+}
+
+.lets-play {
+    font-size: 1.2rem;
+    opacity: 0.85;
+    animation: pulse 1.2s infinite;
+}
+
+/* =======================================================
+   GAME LAYOUT (LOCK / UNLOCK SYSTEM)
+======================================================= */
+#gameLayout {
+    display: flex;
+    height: 100vh;
+    filter: blur(2px);
+    pointer-events: none;
+}
+
+/* UNLOCK GAME */
+body.game-active #gameLayout {
+    filter: none;
+    pointer-events: auto;
+}
+
+/* =======================================================
+   LEFT PANEL
+======================================================= */
+#leftPanel {
+    width: 260px;
+    padding: 18px;
+    background: var(--dark-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-btn {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent-blue);
+    color: var(--light-accent);
+    transition: background 0.2s ease;
+}
+
+.panel-btn:hover {
+    background: #5a86a6;
+}
+
+.dropdown {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* =======================================================
+   RIGHT PANEL
+======================================================= */
+#rightPanel {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#mazeCanvas {
+    background: #111;
+    border: 3px solid var(--light-accent);
+}
+
+/* =======================================================
+   START GAME OVERLAY
+======================================================= */
+#startOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 80;
+}
+
+/* =======================================================
+   SCORE OVERLAY
+======================================================= */
+#scoreBox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 70;
+}
+
+/* =======================================================
+   ANIMATIONS
+======================================================= */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}

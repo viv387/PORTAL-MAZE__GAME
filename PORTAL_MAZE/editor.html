@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PortalMaze Editor</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            font-family: Arial, sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        #editorContainer {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #editorCanvas {
+            background: #222;
+            border: 3px solid #555;
+            margin-top: 15px;
+        }
+
+        .tool-btn {
+            margin: 3px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .tool-btn.active {
+            background: #006eff;
+        }
+
+        /* Toasts */
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .toast {
+            background: #333;
+            color: white;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .toast.success { background: #2e7d32; }
+        .toast.error   { background: #c62828; }
+        .toast.info    { background: #1565c0; }
+    </style>
+</head>
+
+<body>
+
+<!-- ✅ Toast container MUST be inside body -->
+<div id="toastContainer"></div>
+
+<div id="editorContainer">
+
+    <h1>PortalMaze Map Editor</h1>
+    <p style="opacity:0.7;">Grid size is fixed at <b>8 × 8</b></p>
+
+    <!-- TOOL ROW -->
+    <div>
+        <button id="toolEmpty" class="tool-btn active">Empty</button>
+        <button id="toolWall" class="tool-btn">Wall</button>
+        <button id="toolStart" class="tool-btn">Start</button>
+        <button id="toolGoal" class="tool-btn">Goal</button>
+    </div>
+
+    <!-- DYNAMIC PORTAL BUTTONS -->
+    <div id="portalColorButtons" style="margin-top:8px;"></div>
+
+    <!-- WALL BREAK INPUT -->
+    <div style="margin-top:10px;">
+        <label>Max Wall Breaks (K):</label>
+        <input id="inputK" type="number" min="0" value="0" style="width:60px;">
+    </div>
+
+    <!-- EDITOR CANVAS -->
+    <canvas id="editorCanvas" width="320" height="320"></canvas>
+
+    <!-- Undo / Redo -->
+    <div style="margin-top: 10px;">
+        <button id="btnUndo" class="tool-btn">Undo</button>
+        <button id="btnRedo" class="tool-btn">Redo</button>
+    </div>
+
+    <!-- Export / Import -->
+    <div style="margin-top: 10px;">
+        <button id="btnExport" class="tool-btn">Export</button>
+        <button id="btnImport" class="tool-btn">Import</button>
+        <input type="file" id="importFile" style="display:none;">
+    </div>
+
+    <!-- Validation -->
+    <div style="margin-top: 10px;">
+        <button id="btnValidate" class="tool-btn">Validate Map</button>
+        <div id="validationBox" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- Return -->
+    <div style="margin-top: 10px;">
+        <button id="btnReturnGame" class="tool-btn">Return to Game</button>
+    </div>
+
+</div>
+
+<script type="module" src="js/editor.js"></script>
+
+</body>
+</html>
