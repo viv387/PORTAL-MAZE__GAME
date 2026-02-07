@@ -75,6 +75,31 @@ export function portalGlow(ctx, px, py, cellSize = 40, color = "#ffffff") {
 }
 
 // -------------------------------------------------------
+// TELEPORT READY GLOW
+// -------------------------------------------------------
+export function teleportReadyGlow(ctx, px, py, cellSize = 40, color = "#00ffff") {
+
+    const t = (performance.now() % 1200) / 1200;
+    const pulse = 0.4 + Math.sin(t * Math.PI * 2) * 0.25;
+
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+    ctx.arc(
+        px + cellSize / 2,
+        py + cellSize / 2,
+        cellSize * 0.45,
+        0,
+        Math.PI * 2
+    );
+    ctx.stroke();
+    ctx.restore();
+}
+
+// -------------------------------------------------------
 // MAIN RENDER LOOP
 // -------------------------------------------------------
 export function renderAnimations(ctx) {

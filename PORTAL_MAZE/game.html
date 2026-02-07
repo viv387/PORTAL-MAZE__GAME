@@ -18,6 +18,34 @@
     </div>
 </div>
 
+<!-- OPTIONS OVERLAY -->
+<div id="optionsOverlay" style="display:none;">
+    <div class="options-card">
+        <h2>SELECT MODE & DIFFICULTY</h2>
+        
+        <div class="options-section">
+            <h3>Mode</h3>
+            <button id="optNormalMode" class="option-btn active">Normal</button>
+            <button id="optWallMode" class="option-btn">Wall Break</button>
+        </div>
+
+        <div class="options-section">
+            <h3>Difficulty</h3>
+            <div class="difficulty-grid">
+                <button id="optEasy" class="option-btn active" value="easy">Easy</button>
+                <button id="optMedium" class="option-btn" value="medium">Medium</button>
+                <button id="optHard" class="option-btn" value="hard">Hard</button>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <button id="optEditorBtn" class="option-btn-secondary">📝 Map Editor</button>
+        </div>
+
+        <button id="optStartBtn" class="option-btn-primary">START GAME</button>
+    </div>
+</div>
+
 <!-- START OVERLAY -->
 <div id="startOverlay" style="display:none;">
     <div>
@@ -29,18 +57,10 @@
 <!-- GAME -->
 <div id="gameLayout">
     <div id="leftPanel">
-        <button id="normalMode">Normal</button>
-        <button id="wallMode">Wall Break</button>
-
-        <div id="difficultyOptions">
-            <button value="easy">Easy</button>
-            <button value="medium">Medium</button>
-            <button value="hard">Hard</button>
-        </div>
-
         <button id="pauseResumeBtn">⏸ Pause</button>
         <button id="resetGame">Reset</button>
-        <button id="openEditor">Map Editor</button>
+        <button id="showHint">Show Hint</button>
+        <button id="showLeaderboardBtn" style="display:none;">📊 Leaderboard</button>
     </div>
 
     <div id="rightPanel">
@@ -49,6 +69,7 @@
             <div id="breaksStatus"></div>
             <div id="stepCounter"></div>
             <div id="timeCounter"></div>
+            <div id="hintBox"></div>
         </div>
 
         <canvas id="mazeCanvas"></canvas>
@@ -61,7 +82,22 @@
 </div>
 
 <div id="scoreBox" style="display:none;">
-    <div id="scoreText"></div>
+    <div class="score-card">
+        <div id="scoreText"></div>
+        <div class="score-buttons">
+            <button id="scoreLeaderboardBtn" class="score-btn secondary">📊 See Leaderboard</button>
+            <button id="scoreRestartBtn" class="score-btn primary">↺ Go Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- LEADERBOARD POPUP -->
+<div id="leaderboardPopup" style="display:none;">
+    <div class="leaderboard-card">
+        <h2>Top Scores</h2>
+        <ul id="leaderboardPopupList"></ul>
+        <button id="leaderboardCloseBtn" class="score-btn primary">Close</button>
+    </div>
 </div>
 
 <script type="module" src="./js/main.js"></script>

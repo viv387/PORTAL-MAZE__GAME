@@ -2,118 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PortalMaze Editor</title>
+    <title>GHOST MAP EDITOR</title>
     <link rel="stylesheet" href="style.css">
-
-    <style>
-        body {
-            margin: 0;
-            background: #111;
-            font-family: Arial, sans-serif;
-            color: white;
-            display: flex;
-            justify-content: center;
-        }
-
-        #editorContainer {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        #editorCanvas {
-            background: #222;
-            border: 3px solid #555;
-            margin-top: 15px;
-        }
-
-        .tool-btn {
-            margin: 3px;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-
-        .tool-btn.active {
-            background: #006eff;
-        }
-
-        /* Toasts */
-        #toastContainer {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 999;
-        }
-
-        .toast {
-            background: #333;
-            color: white;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            font-size: 14px;
-            opacity: 0.95;
-        }
-
-        .toast.success { background: #2e7d32; }
-        .toast.error   { background: #c62828; }
-        .toast.info    { background: #1565c0; }
-    </style>
 </head>
 
-<body>
+<body class="editor-body">
 
-<!-- ✅ Toast container MUST be inside body -->
+<!-- Toast container -->
 <div id="toastContainer"></div>
 
 <div id="editorContainer">
-
-    <h1>PortalMaze Map Editor</h1>
-    <p style="opacity:0.7;">Grid size is fixed at <b>8 × 8</b></p>
-
-    <!-- TOOL ROW -->
-    <div>
-        <button id="toolEmpty" class="tool-btn active">Empty</button>
-        <button id="toolWall" class="tool-btn">Wall</button>
-        <button id="toolStart" class="tool-btn">Start</button>
-        <button id="toolGoal" class="tool-btn">Goal</button>
+    <div class="editor-header">
+        <h1 class="editor-title">👻 GHOST MAP EDITOR</h1>
+        <p class="editor-subtitle">Grid size is fixed at <span class="highlight">8 × 8</span></p>
     </div>
 
-    <!-- DYNAMIC PORTAL BUTTONS -->
-    <div id="portalColorButtons" style="margin-top:8px;"></div>
+    <div class="editor-card">
+        <!-- TOOL ROW -->
+        <div class="editor-section">
+            <h3 class="section-title">Brush Tools</h3>
+            <div class="tool-grid">
+                <button id="toolEmpty" class="tool-btn active">⬜ Empty</button>
+                <button id="toolWall" class="tool-btn">⬛ Wall</button>
+                <button id="toolStart" class="tool-btn">🟢 Start</button>
+                <button id="toolGoal" class="tool-btn">🟡 Goal</button>
+            </div>
+        </div>
 
-    <!-- WALL BREAK INPUT -->
-    <div style="margin-top:10px;">
-        <label>Max Wall Breaks (K):</label>
-        <input id="inputK" type="number" min="0" value="0" style="width:60px;">
-    </div>
+        <!-- DYNAMIC PORTAL BUTTONS -->
+        <div class="editor-section">
+            <h3 class="section-title">Portals</h3>
+            <div id="portalColorButtons" class="portal-grid"></div>
+        </div>
 
-    <!-- EDITOR CANVAS -->
-    <canvas id="editorCanvas" width="320" height="320"></canvas>
+        <!-- WALL BREAK INPUT -->
+        <div class="editor-section">
+            <h3 class="section-title">Wall Break Mode</h3>
+            <div class="k-input-group">
+                <label for="inputK">Max Breaks (K):</label>
+                <input id="inputK" type="number" min="0" value="0" class="k-input">
+            </div>
+        </div>
 
-    <!-- Undo / Redo -->
-    <div style="margin-top: 10px;">
-        <button id="btnUndo" class="tool-btn">Undo</button>
-        <button id="btnRedo" class="tool-btn">Redo</button>
-    </div>
+        <!-- EDITOR CANVAS -->
+        <div class="canvas-container">
+            <canvas id="editorCanvas" width="480" height="480"></canvas>
+        </div>
 
-    <!-- Export / Import -->
-    <div style="margin-top: 10px;">
-        <button id="btnExport" class="tool-btn">Export</button>
-        <button id="btnImport" class="tool-btn">Import</button>
-        <input type="file" id="importFile" style="display:none;">
-    </div>
+        <!-- Action Buttons -->
+        <div class="editor-actions">
+            <div class="action-row">
+                <button id="btnUndo" class="action-btn secondary">↶ Undo</button>
+                <button id="btnRedo" class="action-btn secondary">↷ Redo</button>
+            </div>
+            
+            <div class="action-row">
+                <button id="btnExport" class="action-btn primary">💾 Export</button>
+                <button id="btnImport" class="action-btn primary">📂 Import</button>
+                <input type="file" id="importFile" style="display:none;">
+            </div>
 
-    <!-- Validation -->
-    <div style="margin-top: 10px;">
-        <button id="btnValidate" class="tool-btn">Validate Map</button>
-        <div id="validationBox" style="margin-top:6px;"></div>
-    </div>
+            <div class="action-row">
+                <button id="btnValidate" class="action-btn validate">✓ Validate Map</button>
+                <button id="btnShowPath" class="action-btn path" style="display:none;">🔍 Show Path</button>
+            </div>
+            
+            <div id="validationBox" class="validation-box"></div>
 
-    <!-- Return -->
-    <div style="margin-top: 10px;">
-        <button id="btnReturnGame" class="tool-btn">Return to Game</button>
+            <div class="action-row">
+                <button id="btnReturnGame" class="action-btn return">← Return to Game</button>
+            </div>
+        </div>
     </div>
 
 </div>

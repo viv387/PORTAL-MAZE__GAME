@@ -16,7 +16,7 @@ import {
     setK
 } from "./config.js";
 
-import { shortestPath } from "./solver.js";
+import { shortestPath, getFullPath } from "./solver.js";
 
 // =======================================================
 //               LOCAL EDITOR STATE (ISOLATED)
@@ -32,12 +32,41 @@ let editorMap = structuredClone(gameMap);
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
 
+const toolEmpty = document.getElementById("toolEmpty");
+const toolWall = document.getElementById("toolWall");
+const toolStart = document.getElementById("toolStart");
+const toolGoal = document.getElementById("toolGoal");
+
+const inputK = document.getElementById("inputK");
+const btnUndo = document.getElementById("btnUndo");
+const btnRedo = document.getElementById("btnRedo");
+const btnExport = document.getElementById("btnExport");
+const btnImport = document.getElementById("btnImport");
+const importFile = document.getElementById("importFile");
+const btnValidate = document.getElementById("btnValidate");
+const btnShowPath = document.getElementById("btnShowPath");
+const btnReturnGame = document.getElementById("btnReturnGame");
+
+const toastContainer = document.getElementById("toastContainer");
+
+function showToast(message, type = "info") {
+    if (!toastContainer) return;
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 2200);
+}
+
+let currentPath = null;
+
 function resizeEditorCanvas() {
     canvas.width = SIZE * CELL;
     canvas.height = SIZE * CELL;
 }
 
-function drawEditor() {
+function drawEditor(highlightPath = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let y = 0; y < SIZE; y++) {
@@ -53,6 +82,46 @@ function drawEditor() {
             ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
             ctx.strokeStyle = "#444";
             ctx.strokeRect(x * CELL, y * CELL, CELL, CELL);
+        }
+    }
+
+    // Draw path if enabled
+    if (highlightPath && currentPath && currentPath.length > 0) {
+        ctx.strokeStyle = "#00ffff";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.shadowColor = "rgba(0, 255, 255, 0.6)";
+        ctx.shadowBlur = 10;
+
+        ctx.beginPath();
+        ctx.moveTo(
+            currentPath[0].x * CELL + CELL / 2,
+            currentPath[0].y * CELL + CELL / 2
+        );
+
+        for (let i = 1; i < currentPath.length; i++) {
+            ctx.lineTo(
+                currentPath[i].x * CELL + CELL / 2,
+                currentPath[i].y * CELL + CELL / 2
+            );
+        }
+
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Draw dots at each step
+        ctx.fillStyle = "#00ffff";
+        for (const point of currentPath) {
+            ctx.beginPath();
+            ctx.arc(
+                point.x * CELL + CELL / 2,
+                point.y * CELL + CELL / 2,
+                6,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
         }
     }
 }
@@ -91,6 +160,7 @@ const portalBox = document.getElementById("portalColorButtons");
 PORTAL_COLORS.forEach(color => {
     const btn = document.createElement("button");
     btn.className = "tool-btn";
+    btn.id = `portal-${color}`;
     btn.textContent = `Portal (${color})`;
     btn.style.borderLeft = `6px solid ${color}`;
 
@@ -119,11 +189,30 @@ function snapshot() {
     });
 }
 
+function buildExportData() {
+    return JSON.stringify({
+        map: structuredClone(editorMap),
+        start: structuredClone(startPos),
+        goal: structuredClone(goalPos),
+        K
+    }, null, 2);
+}
+
 function restore(state) {
     editorMap = structuredClone(state.map);
     setStart(state.start.x, state.start.y);
     setGoal(state.goal.x, state.goal.y);
     setK(state.K);
+    inputK.value = K;
+    
+    // Reset path visualization
+    pathVisible = false;
+    currentPath = null;
+    if (btnShowPath) {
+        btnShowPath.style.display = "none";
+        btnShowPath.textContent = "🔍 Show Path";
+    }
+    
     drawEditor();
 }
 
@@ -164,6 +253,14 @@ canvas.addEventListener("mousedown", e => {
         editorMap[y][x] = { portal: activePortalColor };
     }
 
+    // Reset path visualization when map is edited
+    pathVisible = false;
+    currentPath = null;
+    if (btnShowPath) {
+        btnShowPath.style.display = "none";
+        btnShowPath.textContent = "🔍 Show Path";
+    }
+
     drawEditor();
 });
 
@@ -194,12 +291,76 @@ btnRedo.onclick = () => {
 };
 
 // =======================================================
+//                   EXPORT / IMPORT
+// =======================================================
+
+if (btnExport) {
+    btnExport.onclick = () => {
+        const data = buildExportData();
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "portalmaze-map.json";
+        a.click();
+
+        URL.revokeObjectURL(url);
+        showToast("Map exported", "success");
+    };
+}
+
+if (btnImport && importFile) {
+    btnImport.onclick = () => {
+        importFile.value = "";
+        importFile.click();
+    };
+
+    importFile.onchange = async () => {
+        const file = importFile.files?.[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+
+            if (!data.map || data.map.length !== SIZE || data.map.some(r => r.length !== SIZE)) {
+                showToast("Import failed: map must be 8x8", "error");
+                return;
+            }
+
+            editorMap = structuredClone(data.map);
+            if (data.start) setStart(data.start.x, data.start.y);
+            if (data.goal) setGoal(data.goal.x, data.goal.y);
+            setK(Math.max(0, data.K ?? 0));
+
+            inputK.value = K;
+            
+            // Reset path visualization
+            pathVisible = false;
+            currentPath = null;
+            if (btnShowPath) {
+                btnShowPath.style.display = "none";
+                btnShowPath.textContent = "🔍 Show Path";
+            }
+            
+            drawEditor();
+            showToast("Map imported", "success");
+        } catch (err) {
+            console.error(err);
+            showToast("Import failed: invalid file", "error");
+        }
+    };
+}
+
+// =======================================================
 //                     VALIDATION (EMOJI CLEAN)
 // =======================================================
 
 btnValidate.onclick = () => {
     const box = document.getElementById("validationBox");
     box.style.display = "block";
+    box.className = "validation-box"; // Reset classes
 
     let out = [];
     out.push("🧪 <b>Validation Results</b>");
@@ -208,12 +369,14 @@ btnValidate.onclick = () => {
     if (!startPos) {
         out.push("❌ <b>Start missing</b>");
         box.innerHTML = out.join("<br>");
+        box.classList.add("error");
         return;
     }
 
     if (!goalPos) {
         out.push("❌ <b>Goal missing</b>");
         box.innerHTML = out.join("<br>");
+        box.classList.add("error");
         return;
     }
 
@@ -231,12 +394,49 @@ btnValidate.onclick = () => {
     }
 
     out.push("────────────────────");
-    out.push(noBreak === null && withBreak === null
-        ? "❌ <b>MAP INVALID</b>"
-        : "✅ <b>MAP VALID</b>");
-
+    
+    const isValid = noBreak !== null || withBreak !== null;
+    out.push(isValid ? "✅ <b>MAP VALID</b>" : "❌ <b>MAP INVALID</b>");
+    
     box.innerHTML = out.join("<br>");
+    box.classList.add(isValid ? "success" : "error");
+
+    // Show/hide path button based on validity
+    console.log("btnShowPath:", btnShowPath);
+    console.log("isValid:", isValid);
+    
+    if (btnShowPath) {
+        if (isValid) {
+            console.log("Showing path button");
+            btnShowPath.style.display = "inline-block";
+            // Store the best path
+            currentPath = K > 0 && withBreak !== null
+                ? getFullPath(editorMap.map(r => r.slice()), startPos, goalPos, K)
+                : getFullPath(editorMap.map(r => r.slice()), startPos, goalPos, 0);
+            console.log("currentPath:", currentPath);
+        } else {
+            console.log("Hiding path button");
+            btnShowPath.style.display = "none";
+            currentPath = null;
+        }
+    } else {
+        console.log("btnShowPath element not found!");
+    }
 };
+
+// =======================================================
+//                     SHOW PATH
+// =======================================================
+
+let pathVisible = false;
+
+if (btnShowPath) {
+    btnShowPath.onclick = () => {
+        pathVisible = !pathVisible;
+        btnShowPath.textContent = pathVisible ? "🔍 Hide Path" : "🔍 Show Path";
+        drawEditor(pathVisible);
+    };
+}
 
 // =======================================================
 //                   RETURN TO GAME (COMMIT)
@@ -245,12 +445,17 @@ btnValidate.onclick = () => {
 btnReturnGame.onclick = () => {
     setMap(editorMap);   // 🔥 commit ONLY here
     exportMap();
-    window.location.href = "index.html";
+    localStorage.setItem("current_map_key", "custom");
+    window.location.href = "game.html";
 };
 
 // =======================================================
 //                    STARTUP
 // =======================================================
+
+console.log("Editor initialized");
+console.log("btnValidate:", btnValidate);
+console.log("btnShowPath:", btnShowPath);
 
 resizeEditorCanvas();
 drawEditor();

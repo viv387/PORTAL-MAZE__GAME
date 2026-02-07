@@ -3,14 +3,14 @@
 // =======================================================
 
 // ---- CELL SIZE ----
-export const CELL = 40;
+export const CELL = 60;
 
 // =======================================================
 //               PORTAL COLOR PALETTE
 // =======================================================
 
 export const PORTAL_COLORS = [
-    "red", "blue", "green", "yellow", "purple", "cyan"
+    "red", "blue", "green", "yellow", "purple", "cyan", "orange"
 ];
 
 // =======================================================
@@ -126,21 +126,21 @@ export function importMap(json) {
 //                PRESET LOADER
 // =======================================================
 
-export function loadPresetMap(type) {
-    import("./presets.js").then(module => {
-        const preset = module.PRESETS[type];
-        if (!preset) {
-            console.error("Unknown preset:", type);
-            return;
-        }
+export async function loadPresetMap(type) {
+    const module = await import("./presets.js");
+    const preset = module.PRESETS[type];
+    if (!preset) {
+        console.error("Unknown preset:", type);
+        return false;
+    }
 
-        setMap(preset.map);
-        startPos = { ...preset.start };
-        goalPos  = { ...preset.goal };
-        K = preset.K;
+    setMap(preset.map);
+    startPos = { ...preset.start };
+    goalPos  = { ...preset.goal };
+    K = preset.K;
 
-        resetGameState();
-    });
+    resetGameState();
+    return true;
 }
 
 // =======================================================

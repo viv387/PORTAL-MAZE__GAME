@@ -1,11 +1,15 @@
 /* =======================================================
-   GLOBAL THEME
+   GLOBAL THEME - GHOST EDITION
 ======================================================= */
 :root {
-    --dark-primary: #1B3C53;
-    --dark-secondary: #234C6A;
-    --accent-blue: #456882;
-    --light-accent: #D2C1B6;
+    --ghost-dark: #0a0e27;
+    --ghost-purple: #2a1a4a;
+    --ghost-deep-purple: #1a0f3a;
+    --ghost-accent: #7b68ee;
+    --ghost-light: #e0d7ff;
+    --ghost-cyan: #00ffff;
+    --ghost-eerie: #9d4edd;
+    --ghost-green: #39ff14;
 }
 
 * {
@@ -15,14 +19,35 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: "Segoe UI", system-ui, sans-serif;
-    color: var(--light-accent);
+    font-family: "Courier New", "Courier", monospace;
+    color: var(--ghost-light);
     background: linear-gradient(
         180deg,
-        var(--dark-primary),
-        var(--dark-secondary),
-        var(--accent-blue)
+        var(--ghost-dark),
+        var(--ghost-deep-purple),
+        var(--ghost-purple)
     );
+    position: relative;
+}
+
+/* Ghost mist background effect */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(123, 104, 238, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(157, 78, 221, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure overlays are above the mist */
+#usernameOverlay, #optionsOverlay, #startOverlay, #scoreBox, #leaderboardPopup {
+    z-index: 100 !important;
 }
 
 /* =======================================================
@@ -34,20 +59,93 @@ body {
     align-items: center;
     justify-content: center;
     background: radial-gradient(
-        circle at top,
-        var(--dark-secondary),
-        var(--dark-primary) 65%
+        circle at center,
+        var(--ghost-purple),
+        var(--ghost-dark) 70%
     );
 }
 
 .landing-container {
-    background: rgba(35, 76, 106, 0.55);
-    backdrop-filter: blur(14px);
+    background: rgba(42, 26, 74, 0.55);
+    backdrop-filter: blur(20px);
     border-radius: 22px;
     padding: 48px 64px;
     text-align: center;
-    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55);
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.3),
+        0 40px 90px rgba(0, 0, 0, 0.6);
     animation: fadeUp 1s ease forwards;
+    border: 2px solid rgba(123, 104, 238, 0.2);
+}
+
+.landing-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 40px rgba(123, 104, 238, 0.3);
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    color: var(--ghost-cyan);
+}
+
+.landing-gastly {
+    max-width: 200px;
+    margin: 20px 0;
+    filter: drop-shadow(0 0 20px rgba(123, 104, 238, 0.4));
+    animation: float 3s ease-in-out infinite;
+}
+
+.landing-text {
+    font-size: 1.1rem;
+    margin: 20px 0;
+    color: var(--ghost-light);
+    letter-spacing: 1px;
+}
+
+.landing-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-enter, .btn-exit {
+    padding: 12px 32px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-enter {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+.btn-enter:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.6), 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn-exit {
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    border: 2px solid var(--ghost-accent);
+}
+
+.btn-exit:hover {
+    background: rgba(123, 104, 238, 0.5);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
 }
 
 /* =======================================================
@@ -56,7 +154,7 @@ body {
 #usernameOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.88);
+    background: rgba(0, 0, 0, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,23 +162,68 @@ body {
 }
 
 .username-card {
-    background: rgba(35, 76, 106, 0.65);
-    backdrop-filter: blur(14px);
+    background: rgba(42, 26, 74, 0.75);
+    backdrop-filter: blur(20px);
     border-radius: 18px;
     padding: 36px 42px;
     text-align: center;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.4),
+        0 30px 80px rgba(0, 0, 0, 0.6);
     animation: fadeUp 0.6s ease;
+    border: 2px solid var(--ghost-accent);
+}
+
+.username-card h2 {
+    color: var(--ghost-cyan);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
 }
 
 #usernameInput {
     width: 220px;
-    padding: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid var(--ghost-accent);
+    background: rgba(10, 14, 39, 0.8);
+    color: var(--ghost-light);
+    text-align: center;
+    font-family: "Courier New", monospace;
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.3);
+    transition: all 0.2s ease;
+}
+
+#usernameInput:focus {
+    outline: none;
+    border-color: var(--ghost-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+#usernameError {
+    color: #ff6b6b;
+    font-size: 0.85rem;
+    margin: 10px 0 0;
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+}
+
+#confirmUsernameBtn {
+    padding: 12px 24px;
+    margin-top: 16px;
     border-radius: 8px;
     border: none;
-    background: #111;
-    color: var(--light-accent);
-    text-align: center;
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+#confirmUsernameBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* =======================================================
@@ -137,30 +280,37 @@ body.game-active #gameLayout {
 #leftPanel {
     width: 260px;
     padding: 18px;
-    background: var(--dark-primary);
+    background: linear-gradient(180deg, rgba(42, 26, 74, 0.8), rgba(26, 15, 58, 0.9));
     display: flex;
     flex-direction: column;
     gap: 12px;
+    border-right: 2px solid rgba(123, 104, 238, 0.3);
+    box-shadow: 0 0 30px rgba(123, 104, 238, 0.2) inset;
 }
 
-.panel-btn {
+#leftPanel button {
     padding: 10px;
     border-radius: 6px;
-    border: none;
+    border: 2px solid transparent;
     cursor: pointer;
-    background: var(--accent-blue);
-    color: var(--light-accent);
-    transition: background 0.2s ease;
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    transition: all 0.2s ease;
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
 }
 
-.panel-btn:hover {
-    background: #5a86a6;
+#leftPanel button:hover {
+    background: rgba(123, 104, 238, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
 }
 
-.dropdown {
-    display: none;
-    flex-direction: column;
-    gap: 6px;
+#leftPanel button.active {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 /* =======================================================
@@ -172,11 +322,196 @@ body.game-active #gameLayout {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: linear-gradient(180deg, rgba(26, 15, 58, 0.6), rgba(42, 26, 74, 0.4));
+}
+
+#statusBar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+#statusBar > div {
+    background: rgba(123, 104, 238, 0.2);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(123, 104, 238, 0.3);
+    color: var(--ghost-cyan);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    font-family: "Courier New", monospace;
+}
+
+#hintBox {
+    min-width: 180px;
+    font-style: italic;
+    color: var(--ghost-green);
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
 }
 
 #mazeCanvas {
-    background: #111;
-    border: 3px solid var(--light-accent);
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.8), rgba(26, 15, 58, 0.8));
+    border: 3px solid var(--ghost-cyan);
+    box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.4),
+        inset 0 0 20px rgba(123, 104, 238, 0.1);
+}
+
+#leaderboard {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 16px;
+    background: rgba(42, 26, 74, 0.4);
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 1px solid rgba(123, 104, 238, 0.3);
+    box-shadow: 0 0 15px rgba(123, 104, 238, 0.1);
+}
+
+#leaderboardList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px;
+}
+
+#leaderboardList li {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(123, 104, 238, 0.2);
+    color: var(--ghost-light);
+    font-size: 0.85rem;
+    font-family: "Courier New", monospace;
+}
+
+#leaderboardList li:last-child {
+    border-bottom: none;
+}
+
+#bestScore {
+    color: var(--ghost-green);
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+    font-weight: 600;
+    font-family: "Courier New", monospace;
+}
+
+/* =======================================================
+   OPTIONS OVERLAY
+======================================================= */
+#optionsOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 96;
+}
+
+.options-card {
+    background: rgba(42, 26, 74, 0.75);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 36px 48px;
+    text-align: center;
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.4),
+        0 30px 80px rgba(0, 0, 0, 0.6);
+    animation: fadeUp 0.6s ease;
+    max-width: 500px;
+    border: 2px solid var(--ghost-accent);
+}
+
+.options-card h2 {
+    font-size: 1.6rem;
+    margin: 0 0 24px;
+    color: var(--ghost-cyan);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+.options-section {
+    margin-bottom: 24px;
+}
+
+.options-section h3 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    opacity: 0.9;
+    color: var(--ghost-eerie);
+    text-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
+}
+
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.option-btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-family: "Courier New", monospace;
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+}
+
+.option-btn:hover {
+    background: rgba(123, 104, 238, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+.option-btn.active {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    border-color: var(--ghost-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.option-btn-secondary {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 2px solid var(--ghost-accent);
+    cursor: pointer;
+    background: transparent;
+    color: var(--ghost-light);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-family: "Courier New", monospace;
+    width: 100%;
+}
+
+.option-btn-secondary:hover {
+    background: rgba(123, 104, 238, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(123, 104, 238, 0.3);
+}
+
+.option-btn-primary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 16px;
+    width: 100%;
+    font-family: "Courier New", monospace;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.option-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.5), 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* =======================================================
@@ -192,6 +527,41 @@ body.game-active #gameLayout {
     z-index: 80;
 }
 
+#startOverlay > div {
+    background: rgba(42, 26, 74, 0.75);
+    padding: 40px 60px;
+    border-radius: 18px;
+    text-align: center;
+    border: 2px solid var(--ghost-accent);
+    box-shadow: 0 0 40px rgba(123, 104, 238, 0.4);
+}
+
+#startOverlay p {
+    color: var(--ghost-light);
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+#startGameBtn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    letter-spacing: 2px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+#startGameBtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.5), 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
 /* =======================================================
    SCORE OVERLAY
 ======================================================= */
@@ -203,6 +573,126 @@ body.game-active #gameLayout {
     align-items: center;
     justify-content: center;
     z-index: 70;
+}
+
+.score-card {
+    background: rgba(42, 26, 74, 0.75);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 36px 48px;
+    text-align: center;
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.4),
+        0 30px 80px rgba(0, 0, 0, 0.6);
+    animation: fadeUp 0.6s ease;
+    max-width: 450px;
+    border: 2px solid var(--ghost-accent);
+}
+
+#scoreText {
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--ghost-light);
+    font-family: "Courier New", monospace;
+}
+
+.score-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.score-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: "Courier New", monospace;
+}
+
+.score-btn.primary {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.score-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.score-btn.secondary {
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    border: 2px solid var(--ghost-accent);
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+}
+
+.score-btn.secondary:hover {
+    background: rgba(123, 104, 238, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+/* =======================================================
+   LEADERBOARD POPUP
+======================================================= */
+#leaderboardPopup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 71;
+}
+
+.leaderboard-card {
+    background: rgba(42, 26, 74, 0.75);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 36px 48px;
+    text-align: center;
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.4),
+        0 30px 80px rgba(0, 0, 0, 0.6);
+    animation: fadeUp 0.6s ease;
+    max-width: 500px;
+    max-height: 70vh;
+    overflow-y: auto;
+    border: 2px solid var(--ghost-accent);
+}
+
+.leaderboard-card h2 {
+    margin: 0 0 16px;
+    font-size: 1.4rem;
+    color: var(--ghost-cyan);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+#leaderboardPopupList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    text-align: left;
+}
+
+#leaderboardPopupList li {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(123, 104, 238, 0.2);
+    color: var(--ghost-light);
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+}
+
+#leaderboardPopupList li:last-child {
+    border-bottom: none;
 }
 
 /* =======================================================
@@ -223,4 +713,325 @@ body.game-active #gameLayout {
     0% { opacity: 0.4; }
     50% { opacity: 1; }
     100% { opacity: 0.4; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* =======================================================
+   EDITOR PAGE - GHOST THEME
+======================================================= */
+.editor-body {
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: linear-gradient(
+        180deg,
+        var(--ghost-dark),
+        var(--ghost-deep-purple),
+        var(--ghost-purple)
+    );
+}
+
+#editorContainer {
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 20px;
+}
+
+.editor-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.editor-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 40px rgba(123, 104, 238, 0.3);
+    letter-spacing: 3px;
+    margin: 0 0 12px;
+    color: var(--ghost-cyan);
+    animation: float 3s ease-in-out infinite;
+}
+
+.editor-subtitle {
+    font-size: 1.1rem;
+    color: var(--ghost-light);
+    opacity: 0.85;
+    margin: 0;
+    font-family: "Courier New", monospace;
+}
+
+.editor-subtitle .highlight {
+    color: var(--ghost-green);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+}
+
+.editor-card {
+    background: rgba(42, 26, 74, 0.75);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 32px 40px;
+    box-shadow: 
+        0 0 40px rgba(123, 104, 238, 0.4),
+        0 30px 80px rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--ghost-accent);
+    animation: fadeUp 0.8s ease;
+}
+
+.editor-section {
+    margin-bottom: 28px;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    color: var(--ghost-eerie);
+    text-shadow: 0 0 12px rgba(157, 78, 221, 0.3);
+    margin: 0 0 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.tool-btn {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+}
+
+.tool-btn:hover {
+    background: rgba(123, 104, 238, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+.tool-btn.active {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+    border-color: var(--ghost-cyan);
+}
+
+.k-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+}
+
+.k-input-group label {
+    color: var(--ghost-light);
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+}
+
+.k-input {
+    width: 80px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 2px solid var(--ghost-accent);
+    background: rgba(10, 14, 39, 0.6);
+    color: var(--ghost-cyan);
+    font-family: "Courier New", monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(123, 104, 238, 0.2);
+    transition: all 0.2s ease;
+}
+
+.k-input:focus {
+    outline: none;
+    border-color: var(--ghost-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0;
+}
+
+#editorCanvas {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.9), rgba(26, 15, 58, 0.9));
+    border: 3px solid var(--ghost-cyan);
+    border-radius: 8px;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.4),
+        inset 0 0 30px rgba(123, 104, 238, 0.1);
+    cursor: crosshair;
+}
+
+.editor-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.action-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: "Courier New", monospace;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--ghost-cyan), var(--ghost-accent));
+    color: var(--ghost-dark);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn.secondary {
+    background: rgba(123, 104, 238, 0.3);
+    color: var(--ghost-light);
+    border: 2px solid var(--ghost-accent);
+    box-shadow: 0 0 10px rgba(123, 104, 238, 0.2);
+}
+
+.action-btn.secondary:hover {
+    background: rgba(123, 104, 238, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.4);
+}
+
+.action-btn.validate {
+    background: rgba(57, 255, 20, 0.2);
+    color: var(--ghost-green);
+    border: 2px solid var(--ghost-green);
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+}
+
+.action-btn.validate:hover {
+    background: rgba(57, 255, 20, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4);
+}
+
+.action-btn.path {
+    background: rgba(0, 255, 255, 0.2);
+    color: var(--ghost-cyan);
+    border: 2px solid var(--ghost-cyan);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.action-btn.path:hover {
+    background: rgba(0, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+}
+
+.action-btn.return {
+    background: rgba(157, 78, 221, 0.3);
+    color: var(--ghost-eerie);
+    border: 2px solid var(--ghost-eerie);
+    box-shadow: 0 0 15px rgba(157, 78, 221, 0.2);
+}
+
+.action-btn.return:hover {
+    background: rgba(157, 78, 221, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(157, 78, 221, 0.4);
+}
+
+.validation-box {
+    min-height: 24px;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.validation-box.success {
+    background: rgba(57, 255, 20, 0.2);
+    color: var(--ghost-green);
+    border: 2px solid var(--ghost-green);
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+}
+
+.validation-box.error {
+    background: rgba(255, 69, 58, 0.2);
+    color: #ff453a;
+    border: 2px solid #ff453a;
+    box-shadow: 0 0 15px rgba(255, 69, 58, 0.2);
+}
+
+/* Toast Notifications */
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+}
+
+.toast {
+    background: rgba(42, 26, 74, 0.95);
+    color: var(--ghost-light);
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: "Courier New", monospace;
+    box-shadow: 0 0 20px rgba(123, 104, 238, 0.5);
+    border: 2px solid var(--ghost-accent);
+    animation: fadeUp 0.3s ease;
+}
+
+.toast.success {
+    border-color: var(--ghost-green);
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+}
+
+.toast.error {
+    border-color: #ff453a;
+    box-shadow: 0 0 20px rgba(255, 69, 58, 0.4);
+}
+
+.toast.info {
+    border-color: var(--ghost-cyan);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
 }

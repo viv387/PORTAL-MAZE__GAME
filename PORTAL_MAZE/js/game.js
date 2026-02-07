@@ -13,6 +13,7 @@ import {
 
 import {
   portalGlow,
+  teleportReadyGlow,
   wallBreakAnimation,
   renderAnimations
 } from "./animation.js";
@@ -23,7 +24,7 @@ import {
   getPlayerName
 } from "./ui.js";
 
-import { shortestPath } from "./solver.js";
+import { shortestPath, nextStepHint } from "./solver.js";
 import { addScore } from "./leaderboard.js";
 
 // ======================================================
@@ -45,11 +46,29 @@ function resizeCanvas() {
 
 let gameStarted = false;
 let paused = false;
+let pendingPortal = null;
+let enterHeld = false;
+let lastDir = { dx: 0, dy: 1 };
 
 let stepCount = 0;
 let startTime = 0;
 let elapsedTime = 0;
 let timerInterval = null;
+
+function startTimerLoop() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!gameStarted || paused || !startTime) return;
+
+    elapsedTime = (performance.now() - startTime) / 1000;
+
+    window.dispatchEvent(
+      new CustomEvent("timeUpdate", {
+        detail: { time: elapsedTime.toFixed(1) }
+      })
+    );
+  }, 100);
+}
 
 // ======================================================
 //             OPTIMAL PATH CACHE
@@ -57,6 +76,20 @@ let timerInterval = null;
 
 let optimalNoBreak = null;
 let optimalWithBreak = null;
+
+function findPortalExit(color, fromX, fromY) {
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      const cell = map[y][x];
+      if (typeof cell === "object" && cell.portal === color) {
+        if (x !== fromX || y !== fromY) {
+          return { x, y };
+        }
+      }
+    }
+  }
+  return null;
+}
 
 export function recomputeOptimalPaths() {
   const snapshot = map.map(r => r.slice());
@@ -84,7 +117,13 @@ export function drawMaze() {
 
       if (typeof cell === "object" && cell.portal) {
         ctx.fillStyle = cell.portal;
-        ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        // Draw larger portal as a circle
+        const centerX = x * CELL + CELL / 2;
+        const centerY = y * CELL + CELL / 2;
+        const radius = CELL * 0.35;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fill();
         portalGlow(ctx, x * CELL, y * CELL, CELL, cell.portal);
       }
     }
@@ -99,9 +138,15 @@ export function drawMaze() {
   ctx.fillStyle = "#ffe600";
   ctx.fillRect(goalPos.x * CELL, goalPos.y * CELL, CELL, CELL);
 
-  // Player
+  // Player (draw on top with slight transparency to see portal underneath)
   ctx.fillStyle = "#00ffff";
+  ctx.globalAlpha = 0.85;
   ctx.fillRect(player.x * CELL, player.y * CELL, CELL, CELL);
+  ctx.globalAlpha = 1.0;
+
+  if (pendingPortal?.color) {
+    teleportReadyGlow(ctx, player.x * CELL, player.y * CELL, CELL, pendingPortal.color);
+  }
 
   renderAnimations(ctx);
 }
@@ -122,20 +167,10 @@ export function startGame() {
   startTime = performance.now();
 
   recomputeOptimalPaths();
+  updateBreaksUI();
   drawMaze();
 
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (!gameStarted || paused) return;
-
-    elapsedTime = (performance.now() - startTime) / 1000;
-
-    window.dispatchEvent(
-      new CustomEvent("timeUpdate", {
-        detail: { time: elapsedTime.toFixed(1) }
-      })
-    );
-  }, 100);
+  startTimerLoop();
 }
 
 // ======================================================
@@ -148,11 +183,41 @@ export function togglePause() {
 }
 
 // ======================================================
+//                     HINTS
+// ======================================================
+
+export function getHint() {
+  const remaining = Math.max(0, K - usedBreaks);
+  const action = nextStepHint(map, player, goalPos, remaining);
+  if (!action) return "No hint available";
+
+  if (action.type === "teleport") {
+    return `Teleport via ${action.color} portal`;
+  }
+
+  const dir = action.dx === 1 ? "Right"
+    : action.dx === -1 ? "Left"
+    : action.dy === 1 ? "Down"
+    : "Up";
+
+  if (action.breakWall) {
+    return `Break wall and move ${dir}`;
+  }
+
+  return `Move ${dir}`;
+}
+
+// ======================================================
 //                    MOVEMENT
 // ======================================================
 
 function move(dx, dy, breakWall = false) {
   if (!gameStarted || paused) return;
+
+  if (!startTime) {
+    startTime = performance.now();
+    if (!timerInterval) startTimerLoop();
+  }
 
   const nx = player.x + dx;
   const ny = player.y + dy;
@@ -172,6 +237,7 @@ function move(dx, dy, breakWall = false) {
   player.x = nx;
   player.y = ny;
   stepCount++;
+  pendingPortal = null;
 
   window.dispatchEvent(
     new CustomEvent("stepUpdate", {
@@ -179,29 +245,68 @@ function move(dx, dy, breakWall = false) {
     })
   );
 
-  if (player.x === goalPos.x && player.y === goalPos.y) {
-    gameStarted = false;
-    clearInterval(timerInterval);
-
-    const timeTaken = Math.round(elapsedTime);
-    const best = K > 0 ? optimalWithBreak : optimalNoBreak;
-
-    addScore(
-      localStorage.getItem("current_map_key") || "custom",
-      K > 0 ? "BREAK" : "NO_BREAK",
-      getPlayerName(),
-      stepCount,
-      timeTaken
-    );
-
-    showScoreOverlay({
-      steps: stepCount,
-      time: timeTaken,
-      optimal: best
-    });
-    return;
+  // Track portal for manual teleport (press Enter)
+  const actualCell = map[ny][nx];
+  if (actualCell && typeof actualCell === "object" && actualCell.portal) {
+    pendingPortal = { color: actualCell.portal };
+  } else {
+    pendingPortal = null;
   }
 
+  if (checkGoalAndEnd()) return;
+
+  drawMaze();
+}
+
+function checkGoalAndEnd() {
+  if (player.x !== goalPos.x || player.y !== goalPos.y) return false;
+
+  gameStarted = false;
+  clearInterval(timerInterval);
+
+  const timeTaken = Math.round(elapsedTime);
+  const best = K > 0 ? optimalWithBreak : optimalNoBreak;
+
+  addScore(
+    localStorage.getItem("current_map_key") || "custom",
+    K > 0 ? "BREAK" : "NO_BREAK",
+    getPlayerName(),
+    stepCount,
+    timeTaken
+  );
+
+  window.dispatchEvent(new Event("leaderboardUpdate"));
+
+  showScoreOverlay({
+    steps: stepCount,
+    time: timeTaken,
+    optimal: best
+  });
+  return true;
+}
+
+function attemptTeleport() {
+  if (!pendingPortal) return;
+
+  const exit = findPortalExit(pendingPortal.color, player.x, player.y);
+  if (!exit) return;
+
+  player.x = exit.x;
+  player.y = exit.y;
+  stepCount++;
+
+  const exitCell = map[exit.y][exit.x];
+  pendingPortal = exitCell && typeof exitCell === "object" && exitCell.portal
+    ? { color: exitCell.portal }
+    : null;
+
+  window.dispatchEvent(
+    new CustomEvent("stepUpdate", {
+      detail: { steps: stepCount }
+    })
+  );
+
+  if (checkGoalAndEnd()) return;
   drawMaze();
 }
 
@@ -213,13 +318,33 @@ document.addEventListener("keydown", e => {
   if (!gameStarted || paused) return;
 
   const k = e.key.toLowerCase();
-  const shift = e.shiftKey;
+  if (k === "enter") {
+    enterHeld = true;
+    if (pendingPortal) {
+      attemptTeleport();
+      return;
+    }
+    attemptBreakAhead();
+    return;
+  }
 
-  if (k === "w" || k === "arrowup") move(0, -1, shift);
-  if (k === "s" || k === "arrowdown") move(0, 1, shift);
-  if (k === "a" || k === "arrowleft") move(-1, 0, shift);
-  if (k === "d" || k === "arrowright") move(1, 0, shift);
+  const breakWall = enterHeld || e.shiftKey;
+
+  if (k === "w" || k === "arrowup") { lastDir = { dx: 0, dy: -1 }; move(0, -1, breakWall); }
+  if (k === "s" || k === "arrowdown") { lastDir = { dx: 0, dy: 1 }; move(0, 1, breakWall); }
+  if (k === "a" || k === "arrowleft") { lastDir = { dx: -1, dy: 0 }; move(-1, 0, breakWall); }
+  if (k === "d" || k === "arrowright") { lastDir = { dx: 1, dy: 0 }; move(1, 0, breakWall); }
 });
+
+document.addEventListener("keyup", e => {
+  const k = e.key.toLowerCase();
+  if (k === "enter") enterHeld = false;
+});
+
+function attemptBreakAhead() {
+  if (!lastDir) return;
+  move(lastDir.dx, lastDir.dy, true);
+}
 
 // ======================================================
 //               RESET PLAYER
@@ -227,14 +352,16 @@ document.addEventListener("keydown", e => {
 
 export function resetPlayerToStart() {
   resetBreaks();
-  gameStarted = false;
   paused = false;
+  // Keep gameStarted = true so player can continue moving
+  // Only set to false when a goal is reached
 
   stepCount = 0;
   elapsedTime = 0;
   startTime = 0;
 
   clearInterval(timerInterval);
+  timerInterval = null;
 
   player.x = startPos.x;
   player.y = startPos.y;
@@ -252,5 +379,6 @@ export function resetPlayerToStart() {
   );
 
   recomputeOptimalPaths();
+  updateBreaksUI();
   drawMaze();
 }

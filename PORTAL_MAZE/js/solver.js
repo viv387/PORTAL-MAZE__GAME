@@ -122,3 +122,205 @@ export function shortestPath(grid, start, goal, maxBreaks) {
 
     return null;
 }
+
+// -------------------------------------------------------
+// NEXT STEP HINT (SHORTEST PATH ACTION)
+// -------------------------------------------------------
+export function nextStepHint(grid, start, goal, maxBreaks) {
+    if (start.x === goal.x && start.y === goal.y) return null;
+
+    const H = grid.length;
+    const W = grid[0].length;
+
+    const portals = buildPortalMap(grid);
+
+    const visited = Array.from({ length: H }, () =>
+        Array.from({ length: W }, () =>
+            Array(maxBreaks + 1).fill(false)
+        )
+    );
+
+    const parent = Array.from({ length: H }, () =>
+        Array.from({ length: W }, () =>
+            Array(maxBreaks + 1).fill(null)
+        )
+    );
+
+    const queue = [{ x: start.x, y: start.y, breaks: 0 }];
+    visited[start.y][start.x][0] = true;
+
+    let head = 0;
+    let found = null;
+
+    while (head < queue.length) {
+        const cur = queue[head++];
+
+        if (cur.x === goal.x && cur.y === goal.y) {
+            found = cur;
+            break;
+        }
+
+        const here = grid[cur.y][cur.x];
+
+        if (typeof here === "object" && here.portal) {
+            const exit = getOtherPortal(portals, here.portal, cur.x, cur.y);
+            if (exit && !visited[exit.y][exit.x][cur.breaks]) {
+                visited[exit.y][exit.x][cur.breaks] = true;
+                parent[exit.y][exit.x][cur.breaks] = {
+                    x: cur.x,
+                    y: cur.y,
+                    breaks: cur.breaks,
+                    action: { type: "teleport", color: here.portal }
+                };
+                queue.push({ x: exit.x, y: exit.y, breaks: cur.breaks });
+            }
+        }
+
+        for (const [dx, dy] of DIRS) {
+            const nx = cur.x + dx;
+            const ny = cur.y + dy;
+
+            if (!inBounds(nx, ny)) continue;
+
+            const cell = grid[ny][nx];
+
+            if (cell === 1) {
+                if (cur.breaks < maxBreaks && !visited[ny][nx][cur.breaks + 1]) {
+                    visited[ny][nx][cur.breaks + 1] = true;
+                    parent[ny][nx][cur.breaks + 1] = {
+                        x: cur.x,
+                        y: cur.y,
+                        breaks: cur.breaks,
+                        action: { type: "move", dx, dy, breakWall: true }
+                    };
+                    queue.push({ x: nx, y: ny, breaks: cur.breaks + 1 });
+                }
+                continue;
+            }
+
+            if (!visited[ny][nx][cur.breaks]) {
+                visited[ny][nx][cur.breaks] = true;
+                parent[ny][nx][cur.breaks] = {
+                    x: cur.x,
+                    y: cur.y,
+                    breaks: cur.breaks,
+                    action: { type: "move", dx, dy, breakWall: false }
+                };
+                queue.push({ x: nx, y: ny, breaks: cur.breaks });
+            }
+        }
+    }
+
+    if (!found) return null;
+
+    // Backtrack to find first action from start
+    let cursor = found;
+    while (true) {
+        const back = parent[cursor.y][cursor.x][cursor.breaks];
+        if (!back) return null;
+        if (back.x === start.x && back.y === start.y) {
+            return back.action || null;
+        }
+        cursor = { x: back.x, y: back.y, breaks: back.breaks };
+    }
+}
+
+// -------------------------------------------------------
+// GET FULL PATH (FOR VISUALIZATION)
+// -------------------------------------------------------
+export function getFullPath(grid, start, goal, maxBreaks) {
+    if (start.x === goal.x && start.y === goal.y) return [start];
+
+    const H = grid.length;
+    const W = grid[0].length;
+
+    const portals = buildPortalMap(grid);
+
+    const visited = Array.from({ length: H }, () =>
+        Array.from({ length: W }, () =>
+            Array(maxBreaks + 1).fill(false)
+        )
+    );
+
+    const parent = Array.from({ length: H }, () =>
+        Array.from({ length: W }, () =>
+            Array(maxBreaks + 1).fill(null)
+        )
+    );
+
+    const queue = [{ x: start.x, y: start.y, breaks: 0 }];
+    visited[start.y][start.x][0] = true;
+
+    let head = 0;
+    let found = null;
+
+    while (head < queue.length) {
+        const cur = queue[head++];
+
+        if (cur.x === goal.x && cur.y === goal.y) {
+            found = cur;
+            break;
+        }
+
+        const here = grid[cur.y][cur.x];
+
+        if (typeof here === "object" && here.portal) {
+            const exit = getOtherPortal(portals, here.portal, cur.x, cur.y);
+            if (exit && !visited[exit.y][exit.x][cur.breaks]) {
+                visited[exit.y][exit.x][cur.breaks] = true;
+                parent[exit.y][exit.x][cur.breaks] = {
+                    x: cur.x,
+                    y: cur.y,
+                    breaks: cur.breaks
+                };
+                queue.push({ x: exit.x, y: exit.y, breaks: cur.breaks });
+            }
+        }
+
+        for (const [dx, dy] of DIRS) {
+            const nx = cur.x + dx;
+            const ny = cur.y + dy;
+
+            if (!inBounds(nx, ny)) continue;
+
+            const cell = grid[ny][nx];
+
+            if (cell === 1) {
+                if (cur.breaks < maxBreaks && !visited[ny][nx][cur.breaks + 1]) {
+                    visited[ny][nx][cur.breaks + 1] = true;
+                    parent[ny][nx][cur.breaks + 1] = {
+                        x: cur.x,
+                        y: cur.y,
+                        breaks: cur.breaks
+                    };
+                    queue.push({ x: nx, y: ny, breaks: cur.breaks + 1 });
+                }
+                continue;
+            }
+
+            if (!visited[ny][nx][cur.breaks]) {
+                visited[ny][nx][cur.breaks] = true;
+                parent[ny][nx][cur.breaks] = {
+                    x: cur.x,
+                    y: cur.y,
+                    breaks: cur.breaks
+                };
+                queue.push({ x: nx, y: ny, breaks: cur.breaks });
+            }
+        }
+    }
+
+    if (!found) return null;
+
+    // Backtrack to build full path
+    const path = [];
+    let cursor = found;
+    while (cursor) {
+        path.unshift({ x: cursor.x, y: cursor.y });
+        const back = parent[cursor.y][cursor.x][cursor.breaks];
+        if (!back) break;
+        cursor = { x: back.x, y: back.y, breaks: back.breaks };
+    }
+
+    return path;
+}
